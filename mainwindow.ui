@@ -85,6 +85,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="_nonSmartPtrExampleButton">
+        <property name="text">
+         <string>Non-SmartPointer Example</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="_clearBoxesButton">
         <property name="text">
          <string>Clear Boxes</string>

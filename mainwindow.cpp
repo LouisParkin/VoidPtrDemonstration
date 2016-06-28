@@ -6,7 +6,9 @@
 MainWindow::MainWindow(QWidget* parent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow),
-  _state(false)
+  _state(false),
+  _level2Ptr(),
+  _level3Ptr()
 {
   ui->setupUi(this);
 
@@ -18,6 +20,8 @@ MainWindow::MainWindow(QWidget* parent) :
 
 MainWindow::~MainWindow()
 {
+  if(_level2Ptr != nullptr) delete _level2Ptr;
+  if(_level3Ptr != nullptr) delete _level3Ptr;
   delete ui;
 }
 
@@ -127,10 +131,10 @@ void MainWindow::on__voidPtrInfoButton_clicked()
   /************************************************************************************************************/
 
   /// Take the existing objects and overwrite their character buffers
-           _derivedLevel3PtrAsBasePtr.data()->populatename(0x11);
+  _derivedLevel3PtrAsBasePtr.data()->populatename(0x11);
   _derivedLevel3PtrAsDerivedLevel1Ptr.data()->populatename(0x22);
   _derivedLevel3PtrAsDerivedLevel2Ptr.data()->populatename(0x33);
-                    _derivedLevel3Ptr.data()->populatename(0x44);
+  _derivedLevel3Ptr.data()->populatename(0x44);
 
   /************************************************************************************************************/
   /************************************************************************************************************/
@@ -288,4 +292,100 @@ void MainWindow::clearTextBoxes()
 void MainWindow::on__clearBoxesButton_clicked()
 {
   clearTextBoxes();
+}
+
+void MainWindow::on__nonSmartPtrExampleButton_clicked()
+{
+  if(_level2Ptr != nullptr) delete _level2Ptr;
+  if(_level3Ptr != nullptr) delete _level3Ptr;
+
+  _level2Ptr = new MyExampleDerivedClassL2();
+  _level3Ptr = new MyExampleDerivedClassL3();
+
+  _level2Ptr->populatename(0x22);
+  _level3Ptr->populatename(0x33);
+
+  QString header{"_level2Ptr : MyExampleDerivedClassL2"};
+  dumpobject<MyExampleDerivedClassL2>(__LINE__,
+                                      QString("MainWindow::MainWindow"),
+                                      header,
+                                      _level2Ptr,
+                                      ui->_nonPolyPointerContent);
+
+  header = QString{"_level3Ptr : MyExampleDerivedClassL3"};
+  dumpobject<MyExampleDerivedClassL3>(__LINE__,
+                                      QString("MainWindow::MainWindow"),
+                                      header,
+                                      _level3Ptr,
+                                      ui->_nonPolyPointerContent);
+
+  _testLevel2AsBasePtr  = static_cast<MyExampleBaseClass*>(_level2Ptr);
+  _testLevel3AsBasePtr  = static_cast<MyExampleBaseClass*>(_level3Ptr);
+
+  header = QString{"_testLevel2AsBasePtr : MyExampleBaseClass"};
+  dumpobject<MyExampleBaseClass>(__LINE__,
+                                 QString("MainWindow::MainWindow"),
+                                 header,
+                                 _testLevel2AsBasePtr,
+                                 ui->_nonPolyPointerAddresses);
+
+  header = QString{"_testLevel3AsBasePtr : MyExampleBaseClass"};
+  dumpobject<MyExampleBaseClass>(__LINE__,
+                                 QString("MainWindow::MainWindow"),
+                                 header,
+                                 _testLevel3AsBasePtr,
+                                 ui->_nonPolyPointerAddresses);
+
+  void* vpL2 = reinterpret_cast<void*>(_testLevel2AsBasePtr);
+  void* vpL3 = reinterpret_cast<void*>(_testLevel3AsBasePtr);
+
+  header = QString{"vpL2 : _testLevel2AsBasePtr : void *"};
+  dumpobject(__LINE__, QString("MainWindow::MainWindow"), header,
+             vpL2, sizeof(MyExampleDerivedClassL2), ui->_polyAsBasePointerContent);
+
+  header = QString{"vpL3 : _testLevel3AsBasePtr : void *"};
+  dumpobject(__LINE__, QString("MainWindow::MainWindow"), header,
+             vpL3, sizeof(MyExampleDerivedClassL3), ui->_polyAsBasePointerContent);
+
+  header = QString{"vpL2 : _testLevel2AsBasePtr : void *"};
+  dumpobject(__LINE__, QString("MainWindow::MainWindow"), header,
+             vpL2, sizeof(MyExampleBaseClass), ui->_polyAsBasePointerAddresses);
+
+  header = QString{"vpL3 : _testLevel3AsBasePtr : void *"};
+  dumpobject(__LINE__, QString("MainWindow::MainWindow"), header,
+             vpL3, sizeof(MyExampleBaseClass), ui->_polyAsBasePointerAddresses);
+
+  MyExampleBaseClass* castBackToBaseL2Ptr = reinterpret_cast<MyExampleBaseClass*>(vpL2);
+  MyExampleBaseClass* castBackToBaseL3Ptr = reinterpret_cast<MyExampleBaseClass*>(vpL3);
+
+  header = QString{"castBackToBaseL2Ptr : MyExampleBaseClass"};
+  dumpobject<MyExampleBaseClass>(__LINE__,
+                                 QString("MainWindow::MainWindow"),
+                                 header,
+                                 castBackToBaseL2Ptr,
+                                 ui->_polyAsLevel1PointerContent);
+
+  header = QString{"castBackToBaseL3Ptr : MyExampleBaseClass"};
+  dumpobject<MyExampleBaseClass>(__LINE__,
+                                 QString("MainWindow::MainWindow"),
+                                 header,
+                                 castBackToBaseL3Ptr,
+                                 ui->_polyAsLevel1PointerContent);
+
+  MyExampleDerivedClassL2* castBackToL2Ptr = dynamic_cast<MyExampleDerivedClassL2*>(castBackToBaseL2Ptr);
+  MyExampleDerivedClassL3* castBackToL3Ptr = dynamic_cast<MyExampleDerivedClassL3*>(castBackToBaseL3Ptr);
+
+  header = QString{"castBackToL2Ptr : MyExampleBaseClass"};
+  dumpobject<MyExampleDerivedClassL2>(__LINE__,
+                                      QString("MainWindow::MainWindow"),
+                                      header,
+                                      castBackToL2Ptr,
+                                      ui->_polyAsLevel1PointerAddresses);
+
+  header = QString{"castBackToL3Ptr : MyExampleBaseClass"};
+  dumpobject<MyExampleDerivedClassL3>(__LINE__,
+                                      QString("MainWindow::MainWindow"),
+                                      header,
+                                      castBackToL3Ptr,
+                                      ui->_polyAsLevel1PointerAddresses);
 }
