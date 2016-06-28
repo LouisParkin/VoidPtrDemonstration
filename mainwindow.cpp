@@ -27,6 +27,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on__nonPolyInstantiateButton_clicked()
 {
+  clearTextBoxes();
+
   /// The following two lines wwon't compile, as the classes contain pure virtual functions they cannot stand
   /// on their own as concrete instances.
 
@@ -296,6 +298,8 @@ void MainWindow::on__clearBoxesButton_clicked()
 
 void MainWindow::on__nonSmartPtrExampleButton_clicked()
 {
+  clearTextBoxes();
+
   if(_level2Ptr != nullptr) delete _level2Ptr;
   if(_level3Ptr != nullptr) delete _level3Ptr;
 
@@ -387,5 +391,61 @@ void MainWindow::on__nonSmartPtrExampleButton_clicked()
                                       QString("MainWindow::MainWindow"),
                                       header,
                                       castBackToL3Ptr,
+                                      ui->_polyAsLevel1PointerAddresses);
+
+  void* vp_L2 = reinterpret_cast<void*>(_level2Ptr);
+  void* vp_L3 = reinterpret_cast<void*>(_level3Ptr);
+
+  header = QString{"vp_L2 : _level2Ptr : void *"};
+  dumpobject(__LINE__, QString("MainWindow::MainWindow"), header,
+             vp_L2, sizeof(MyExampleDerivedClassL2), ui->_polyAsBasePointerContent);
+
+  header = QString{"vp_L3 : _level3Ptr : void *"};
+  dumpobject(__LINE__, QString("MainWindow::MainWindow"), header,
+             vp_L3, sizeof(MyExampleDerivedClassL3), ui->_polyAsBasePointerContent);
+
+  header = QString{"vp_L2 : _level2Ptr : void *"};
+  dumpobject(__LINE__, QString("MainWindow::MainWindow"), header,
+             vp_L2, sizeof(MyExampleBaseClass), ui->_polyAsBasePointerAddresses);
+
+  header = QString{"vp_L3 : _level3Ptr : void *"};
+  dumpobject(__LINE__, QString("MainWindow::MainWindow"), header,
+             vp_L3, sizeof(MyExampleBaseClass), ui->_polyAsBasePointerAddresses);
+
+  MyExampleBaseClass* castBackToBase_L2Ptr = reinterpret_cast<MyExampleBaseClass*>(vp_L2);
+  MyExampleBaseClass* castBackToBase_L3Ptr = reinterpret_cast<MyExampleBaseClass*>(vp_L3);
+
+  header = QString{"castBackToBase_L2Ptr : MyExampleBaseClass"};
+  dumpobject<MyExampleBaseClass>(__LINE__,
+                                 QString("MainWindow::MainWindow"),
+                                 header,
+                                 castBackToBase_L2Ptr,
+                                 ui->_polyAsLevel1PointerContent);
+
+  header = QString{"castBackToBase_L3Ptr : MyExampleBaseClass"};
+  dumpobject<MyExampleBaseClass>(__LINE__,
+                                 QString("MainWindow::MainWindow"),
+                                 header,
+                                 castBackToBase_L3Ptr,
+                                 ui->_polyAsLevel1PointerContent);
+
+  MyExampleDerivedClassL2* castBackTo_L2Ptr = reinterpret_cast<MyExampleDerivedClassL2*>(vp_L2);
+  MyExampleDerivedClassL3* castBackTo_L3Ptr = reinterpret_cast<MyExampleDerivedClassL3*>(vp_L3);
+
+  castBackTo_L2Ptr->populatename(0x44);
+  castBackTo_L3Ptr->populatename(0x55);
+
+  header = QString{"castBackTo_L2Ptr : MyExampleBaseClass"};
+  dumpobject<MyExampleDerivedClassL2>(__LINE__,
+                                      QString("MainWindow::MainWindow"),
+                                      header,
+                                      castBackTo_L2Ptr,
+                                      ui->_polyAsLevel1PointerAddresses);
+
+  header = QString{"castBackTo_L3Ptr : MyExampleBaseClass"};
+  dumpobject<MyExampleDerivedClassL3>(__LINE__,
+                                      QString("MainWindow::MainWindow"),
+                                      header,
+                                      castBackTo_L3Ptr,
                                       ui->_polyAsLevel1PointerAddresses);
 }

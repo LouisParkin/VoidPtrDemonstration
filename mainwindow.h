@@ -40,6 +40,7 @@ private slots:
   /// Clears all the text boxes.
   void on__clearBoxesButton_clicked();
 
+  /// Same thing, just without smart pointers.
   void on__nonSmartPtrExampleButton_clicked();
 
   private:
